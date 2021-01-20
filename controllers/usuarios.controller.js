@@ -41,7 +41,20 @@ const usuariosController = {
             })
             return
         }
-        const isValid = await validateUsernameAndPassword (usuario, clave);
+        const usuarioDb = await db.usuarios.findOne({
+            where: {
+                usuario: usuario,
+            }
+        })
+        if (usuarioDb == null) {
+            res.status(404).json({
+                isSucces: false,
+                error: 'usuario no encontrado.'
+            })
+            return
+        }
+
+        const isValid = await validateUsernameAndPassword (usuarioDb, clave);
         if (!isValid) {
             res.status(401).json({
                 isSucces: false,
@@ -49,7 +62,7 @@ const usuariosController = {
             })
             return
         }
-        const token = jwt.sign ({usuario: usuario, isAdmin: await isAdmin(usuario) }, config.jwtSecret);
+        const token = jwt.sign ({id: usuarioDb.id, usuario: usuarioDb.usuario, isAdmin: usuarioDb.isAdmin }, config.jwtSecret);
             res.json(token);
     },
     
@@ -74,27 +87,11 @@ async function validateCorreoElectronico (email) {
     return true;
 }
 async function validateUsernameAndPassword (usuario, clave) {
-    const usuarioDb = await db.usuarios.findOne({
-        where: {
-            usuario: usuario,
-        }
-    })
-    if (usuarioDb == null)
-        return false;
-    const compareResult = await bcrypt.compare(clave, usuarioDb.clave)
+    const compareResult = await bcrypt.compare(clave, usuario.clave)
     if (!compareResult){
         return false;
     }
     return true;
 }
-async function isAdmin(usuario) {
-    const usuarioDb = await db.usuarios.findOne({
-        where: {
-            usuario: usuario,
-        }
-    })
-    if ( usuarioDb !== null && usuarioDb.isAdmin)
-        return true;
-    return false;
-}
+
 module.exports = usuariosController

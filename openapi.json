@@ -549,6 +549,18 @@
       }
     },
     "schemas": {
+      "productosForPedidos": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          }
+        }
+      },
       "usuarios": {
         "type": "object",
         "required": [
@@ -631,7 +643,7 @@
           },
           "precio": {
             "type": "number",
-            "example": 350
+            "example": "350.00"
           },
           "descripcion": {
             "type": "string",
@@ -655,7 +667,7 @@
           },
           "precio": {
             "type": "number",
-            "example": 350
+            "example": "350.00"
           },
           "descripcion": {
             "type": "string",
@@ -677,7 +689,7 @@
           },
           "precio": {
             "type": "number",
-            "example": 350
+            "example": "350.00"
           },
           "descripcion": {
             "type": "string",
@@ -691,7 +703,8 @@
           "estado",
           "total",
           "formaDePago",
-          "direccion"
+          "direccion",
+          "productos"
         ],
         "properties": {
           "estado": {
@@ -700,7 +713,7 @@
           },
           "total": {
             "type": "number",
-            "example": 500
+            "example": "500.00"
           },
           "formaDePago": {
             "type": "string",
@@ -709,6 +722,20 @@
           "direccion": {
             "type": "string",
             "example": "MI casa"
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productosForPedidos"
+            },
+            "example": [
+              {
+                "id": 1
+              },
+              {
+                "id": 2
+              }
+            ]
           }
         }
       },
@@ -725,7 +752,7 @@
           },
           "total": {
             "type": "number",
-            "example": "500"
+            "example": "500.00"
           },
           "formaDePago": {
             "type": "string",
@@ -746,7 +773,7 @@
           },
           "total": {
             "type": "number",
-            "example": "500"
+            "example": "500.00"
           },
           "formaDePago": {
             "type": "string",

@@ -8,7 +8,7 @@ const config = require('../config')
             const tokenDecoded = jwt.verify(token, config.jwtSecret)
             
             if(tokenDecoded) {
-                req.user = { username: tokenDecoded.username, isAdmin: tokenDecoded.isAdmin}
+                req.user = { id:tokenDecoded.id, username: tokenDecoded.username, isAdmin: tokenDecoded.isAdmin}
                 next()
             }
         }   

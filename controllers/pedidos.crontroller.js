@@ -9,13 +9,15 @@ const pedidosController = {
                 isSucces: false,
                 error: "Error para armar el pedido por falta de datos requeridos"
             });
+            return
         }
         try {
             let pedido = await db.pedidos.create({
                 estado: req.body.estado, 
                 total: req.body.total, 
                 formaDePago: req.body.formaDePago,
-                direccion: req.body.direccion
+                direccion: req.body.direccion,
+                usuarioId: req.user.id
             })
             req.body.productos.forEach(async element => {
                    let producto = await db.productos.findOne({
@@ -26,17 +28,19 @@ const pedidosController = {
                    await pedido.setProductos(producto)
             })
             res.status(201).json();  
+            return
         }
         catch(error){
             res.status(500).json({
                 isSucces: false,
                 error: error
             })
+            return
         }
     },
     //Get action
     getPedidos: async (req, res) => {
-        let pedidos = await db.pedidos.findAll()
+        let pedidos = await db.pedidos.findAll({include:[{model: db.usuarios, attributes: ['nombre', 'apellido', 'usuario', 'correoElectronico', 'telefono']}, {model:db.productos}], attributes: {exclude: ['usuarioId']}})
         if (pedidos.length > 0) 
             res.json(pedidos)
         else 
@@ -47,7 +51,8 @@ const pedidosController = {
         let pedido = await db.pedidos.findOne({
             where:{
                 id: req.params.id
-            }
+            },
+            include: db.productos
         })
         if (pedido !== null)
             res.json(pedido)
@@ -80,13 +85,14 @@ const pedidosController = {
             })
             await pedido.setProductos(productos)
             res.status(204).json();
-            console.log(pedido)
+            return
         }
         catch (error) {
             res.status(500).json({
                 isSuccess: false,
                 error: error
             })
+            return
         }
     },
     //Delete action
