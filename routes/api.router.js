@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const pedidosController = require('../controllers/pedidos.crontroller');
+const pedidosController = require('../controllers/pedidos.controller');
 const productosController = require('../controllers/productos.controller');
 const usuariosController = require('../controllers/usuarios.controller');
 const usersValidation = require('../validations/users.validation');

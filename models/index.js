@@ -25,11 +25,13 @@ db.sequelize = sequelize;
 db.productos = require('./product.models')(sequelize, DataTypes);
 db.pedidos = require('./pedidos.models')(sequelize, DataTypes);
 db.usuarios = require('./usuarios.models')(sequelize, DataTypes);
+db.pedidosProductos = require('./pedidosProductos.models')(sequelize, DataTypes);
 
 db.pedidos.belongsTo(db.usuarios, {foreingKey: "usuarioId"});
-db.usuarios.hasMany(db.pedidos, {foreingKey: "usuarioId", foreingKeyConstraint: true})
-db.pedidos.belongsToMany(db.productos, {through:"pedidosProductos"});
-db.productos.belongsToMany(db.pedidos, {through: "pedidosProductos"})
+db.usuarios.hasMany(db.pedidos, {foreingKey: "usuarioId", foreingKeyConstraint: true});
+
+db.pedidos.belongsToMany(db.productos, {through: db.pedidosProductos});
+db.productos.belongsToMany(db.pedidos, {through: db.pedidosProductos});
 
 module.exports = db;
 

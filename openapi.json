@@ -552,12 +552,17 @@
       "productosForPedidos": {
         "type": "object",
         "required": [
-          "id"
+          "id",
+          "cantidad"
         ],
         "properties": {
           "id": {
             "type": "integer",
             "example": 1
+          },
+          "cantidad": {
+            "type": "integer",
+            "example": 2
           }
         }
       },
@@ -730,10 +735,12 @@
             },
             "example": [
               {
-                "id": 1
+                "id": 1,
+                "cantidad": 2
               },
               {
-                "id": 2
+                "id": 2,
+                "cantidad": 1
               }
             ]
           }
@@ -782,6 +789,22 @@
           "direccion": {
             "type": "string",
             "example": "Calle Alma Fuerte 346"
+          },
+          "productos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productosForPedidos"
+            },
+            "example": [
+              {
+                "id": 1,
+                "cantidad": 2
+              },
+              {
+                "id": 2,
+                "cantidad": 1
+              }
+            ]
           }
         }
       }

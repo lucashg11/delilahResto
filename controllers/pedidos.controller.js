@@ -1,4 +1,3 @@
-const { pedidos } = require('../models/index');
 const db = require('../models/index');
 
 const pedidosController = {
@@ -25,7 +24,7 @@ const pedidosController = {
                            id: element.id
                        }
                     })
-                   await pedido.setProductos(producto)
+                   await pedido.setProductos(producto, { through: { cantidad: element.cantidad}})
             })
             res.status(201).json();  
             return
@@ -40,7 +39,26 @@ const pedidosController = {
     },
     //Get action
     getPedidos: async (req, res) => {
-        let pedidos = await db.pedidos.findAll({include:[{model: db.usuarios, attributes: ['nombre', 'apellido', 'usuario', 'correoElectronico', 'telefono']}, {model:db.productos}], attributes: {exclude: ['usuarioId']}})
+        let pedidos = await db.pedidos
+            .findAll(
+                {
+                    include:[
+                        {
+                            model: db.usuarios, 
+                            attributes: ['id','nombre', 'apellido', 'usuario', 'correoElectronico', 'telefono']
+                        }, 
+                        {
+                            model:db.productos,
+                            attributes: ['id', 'nombre', 'precio', 'descripcion'],
+                            through: {
+                                attributes: ['cantidad']
+                              }
+                        }
+                    ], 
+                    attributes: {
+                        exclude: ['usuarioId']
+                    }
+                })
         if (pedidos.length > 0) 
             res.json(pedidos)
         else 
@@ -52,7 +70,22 @@ const pedidosController = {
             where:{
                 id: req.params.id
             },
-            include: db.productos
+            include:[
+                {
+                    model: db.usuarios, 
+                    attributes: ['id','nombre', 'apellido', 'usuario', 'correoElectronico', 'telefono']
+                }, 
+                {
+                    model:db.productos,
+                    attributes: ['id', 'nombre', 'precio', 'descripcion'],
+                    through: {
+                        attributes: ['cantidad']
+                      }
+                }
+            ], 
+            attributes: {
+                exclude: ['usuarioId']
+            }
         })
         if (pedido !== null)
             res.json(pedido)
@@ -67,9 +100,16 @@ const pedidosController = {
             }
         })
         if (pedido == null) {
-            res.status(400).json({
+            res.status(404).json({
                 isSuccess: false,
                 error: "Pedido inexistente"
+            });
+            return
+        }
+        if (req.body.estado == null ||  req.body.total == null || req.body.formaDePago == null || req.body.direccion == null || req.body.productos == null){
+            res.status(400).json({
+                isSucces: false,
+                error: "Error para armar el pedido por falta de datos requeridos"
             });
             return
         }
@@ -80,10 +120,19 @@ const pedidosController = {
                 formaDePago: req.body.formaDePago,
                 direccion: req.body.direccion
             })
-            var productos = req.body.productos.map(element => {
-                return parseInt(element.id)
+            var productos = []
+            await req.body.productos.forEach(async element => {
+                let producto = await db.productos.findOne({
+                    where: {
+                        id: element.id
+                    }
+                })
+                if(producto) {
+                    producto.pedidoProductos = { cantidad: element.cantidad };
+                    console.log(productos.push(producto));
+                }
+                await pedido.addProductos(producto, { through: { cantidad: element.cantidad}})
             })
-            await pedido.setProductos(productos)
             res.status(204).json();
             return
         }
